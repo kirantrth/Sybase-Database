@@ -1,0 +1,89 @@
+isql -UMGR -PMGR123 
+>1
+
+<ngtman@PUN-SRFR11 .../ngtman> isql -UMGR -PMGR123
+Unable to open buffer file.
+<ngtman@PUN-SRFR11 .../ngtman> df -kh /tmp
+Filesystem             Size  Used Avail Use% Mounted on
+/dev/mapper/rhel-root   50G   50G   20K 100% /
+<ngtman@PUN-SRFR11 .../ngtman>
+
+
+How to list databases?
+
+use <databasename>
+
+If you are not sure whether a query contains a reserved word, use this query to see a complete list of reserved words:
+
+1> select name from spt_values where type = "W"
+2> go
+
+<ngtman@PUN-SRFR11 .../ngtman> isql -UMGR -PMGR123 -w2000
+1> sp_helpdb
+2> go
+-------------------------------------------------------------------------------------------------------------------------
+
+1> select @@servername
+2> go
+ ------------------
+ PUNSRFR11
+
+(1 row affected)
+######################################################################################################
+
+1> sp_helpdb
+2> go
+ name            db_size       owner dbid  created      durability  lobcomplvl inrowlen status                                
+ --------------- ------------- ----- ----- ------------ ----------- ---------- -------- -----------------------------------------------------------------------------------------
+ master               143.0 MB sa        1 May 18, 2020 full                 0     NULL mixed log and data                    
+ model                  3.0 MB sa        3 May 18, 2020 full                 0     NULL mixed log and data                    
+ mutbtest1_linux     7400.0 MB MGR       4 May 18, 2020 full                 0     NULL trunc log on chkpt, ddl in tran, encrypted
+ mutbtest2_linux     7403.0 MB MGR       5 May 18, 2020 full                 0     NULL trunc log on chkpt, ddl in tran, encrypted
+ mutbtest3_linux     7400.0 MB MGR       6 Mar 16, 2021 full                 0     NULL encrypted
+ 
+1> use mutbtest1_linux
+2> go
+1> select db_name()
+2> go
+
+ ------------------------------
+ mutbtest1_linux
+
+(1 row affected)
+######################################################################################################
+Below will tell dependant object on table 'RtfTickerMap'
+1> sp_depends RtfTickerMap
+2> go
+
+Things inside the current database that reference the object.
+ object            type
+ ----------------- ----
+ dbo.RtfBondTicker view
+ dbo.RtfFutrTicker view
+ dbo.RtfFxTicker   view
+ dbo.RtfIrTicker   view
+ dbo.RtfVolTicker  view
+#######################################################################################################
+Below will tell how view/trigger is created in Sybase DB
+1> sp_helptext RtfIrTicker
+2> go
+ # Lines of Text
+ ---------------
+               4
+(1 row affected)
+                                  
+ CREATE view RtfIrTicker
+
+AS SELECT                                                                                                                     
+ RtfTickerMap.Code, RtfTickerMap.AuditTimeStamp, RtfTickerMap.AuditUserName, RtfTickerMap.RepVersionId, RtfTickerMap.AuditSite, RtfTickerMap.RepArrivalSDT, RtfTickerMap.NgtName, RtfTickerMap.TopicName, RtfTickerMap.FieldID, RtfTickerMap.Row, RtfTickerMap.C
+ ol, RtfTickerMap.NgtType, RtfTickerMap.GroupingKey, RtfTickerMap.SourceType, RtfTickerMap.PubSubType, RtfTickerMap.BlendingGroup FROM RtfTickerMap
+WHERE NgtType = 2
+#########################################################################################################
+ 
+https://dbtut.com/index.php/2018/08/14/1675/ ===> useful info of Sybase ASE
+
+http://www.bossconsulting.com/sybase_dba/sublevels/deadlock.info   ===> useful info of Sybase ASE Deadlock
+
+CREATE TABLE TableA ( ID INT, Name NVARCHAR(50) )
+
+
