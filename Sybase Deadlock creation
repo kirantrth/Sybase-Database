@@ -1,0 +1,33 @@
+create below procedure in sybase DB:
+
+    CREATE TABLE deadlock1 (id INTEGER IDENTITY, val CHAR(1))
+    INSERT INTO deadlock1 (val) VALUES ('San Francisco')
+	
+    create procedure proc_deadlock2
+    as
+    begin
+    LOCK TABLE deadlock2 IN EXCLUSIVE MODE
+    waitfor delay "00:00:20:100"
+    UPDATE deadlock1 SET val='y'
+    end
+
+    grant execute on proc_deadlock2 to public
+    sp_configure "print deadlock information", 1
+    
+    then create another procedure in similar way as above.
+    
+    I tried to create the deadlock scenario using two apps, in which I tried to access two tables with exclusive locks.
+    Then set sp_configure "print deadlock information", 1
+    When deadlock occurred, the info printed in $SYBASE/ASE-16_0/install/PUNSRFR11.log file is as:
+    
+    select lockscheme('deadlock1')   ===> this will tell locking schemes applied to the table deadlock1.
+    
+    isql -Usa -Psybase -D$DBNAME -w2000 -s     ====> sa is admin user.
+    sp_configure 'enable monitoring', 1
+    grant role mon_role to sa
+    sp_sysmon "00:02:00", locks, no_appl    ====>  Here, the sp_sysmon will print the locks info to screen after 2 minutes.
+
+######################################################################################################### 
+
+https://dbtut.com/index.php/2018/08/14/1675/ ===> useful info of Sybase ASE
+http://www.bossconsulting.com/sybase_dba/sublevels/deadlock.info   ===> useful info of Sybase ASE Deadlock
